@@ -23,7 +23,7 @@ namespace Playground.Forms.Droid
         // MainLauncher = true, // No Splash Screen: Uncomment this lines if removing splash screen
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
         LaunchMode = LaunchMode.SingleTask)]
-    public class MainActivity : MvxFormsAppCompatActivity
+    public class MainActivity : MvxFormsAppCompatActivity <RootViewModel>
     // No Splash Screen: use this base instead
     // MvxFormsAppCompatActivity<Setup, Core.App, FormsApp>
     {
