@@ -17,5 +17,6 @@ namespace MvvmCross.UnitTest.Mocks.Dispatchers
             Count++;
             return true;
         }
+        public override bool IsOnMainThread => true;
     }
 }

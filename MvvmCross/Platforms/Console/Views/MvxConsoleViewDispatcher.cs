@@ -33,5 +33,7 @@ namespace MvvmCross.Platforms.Console.Views
             await ExecuteOnMainThreadAsync(() => navigation.ChangePresentation(hint));
             return true;
         }
+
+        public override bool IsOnMainThread => true;
     }
 }

@@ -22,5 +22,7 @@ namespace MvvmCross.UnitTest.Mocks.Dispatchers
         {
             return _callback(action);
         }
+
+        public override bool IsOnMainThread => true;
     }
 }

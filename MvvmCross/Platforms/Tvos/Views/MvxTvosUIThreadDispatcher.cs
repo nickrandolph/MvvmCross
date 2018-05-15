@@ -22,9 +22,11 @@ namespace MvvmCross.Platforms.Tvos.Views
                 throw new MvxException("SynchronizationContext must not be null - check to make sure Dispatcher is created on UI thread");
         }
 
+        public override bool IsOnMainThread => _uiSynchronizationContext == SynchronizationContext.Current;
+
         public override bool RequestMainThreadAction(Action action, bool maskExceptions = true)
         {
-            if (_uiSynchronizationContext == SynchronizationContext.Current)
+            if (IsOnMainThread)
                 action();
             else
                 UIApplication.SharedApplication.BeginInvokeOnMainThread(() =>
