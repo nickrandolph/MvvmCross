@@ -123,6 +123,27 @@ namespace MvvmCross.ViewModels
             });
             navService.AddNavigation<TCurrentViewModel>(newDefinition);
         }
+
+        protected virtual void RegisterCompletion<TCurrentViewModel>(Func<TCurrentViewModel, bool> shouldComplete = null)
+            where TCurrentViewModel : class, IMvxNavigation, IMvxViewModel
+        {
+            var navService = Mvx.IoCProvider.Resolve<IMvxNavigationService>() as MvxNavigationService;
+            var newDefinition = new Action<IMvxViewModel, IMvxNavigationService>((obj, nav) =>
+            {
+                var vm = obj as TCurrentViewModel;
+                if (vm != null)
+                {
+                    vm.OnCompleted = () =>
+                    {
+                        if (shouldComplete?.Invoke(vm) ?? true)
+                            return nav.Close(vm);
+
+                        return Task.CompletedTask;
+                    };
+                }
+            });
+            navService.AddNavigation<TCurrentViewModel>(newDefinition);
+        }
     }
 
     public class MvxApplication<TParameter> : MvxApplication, IMvxApplication<TParameter>

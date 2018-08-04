@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MS-PL license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Threading.Tasks;
+using MvvmCross.Base;
 using MvvmCross.Commands;
 using MvvmCross.Logging;
 using MvvmCross.Navigation;
@@ -11,7 +13,7 @@ using Playground.Core.Models;
 
 namespace Playground.Core.ViewModels
 {
-    public class ChildViewModel : MvxNavigationViewModel<SampleModel, SampleModel>
+    public class ChildViewModel : MvxNavigationViewModel<SampleModel, SampleModel>, IMvxNavigation
     {
         public string BrokenTextValue { get => _brokenTextValue; set => SetProperty(ref _brokenTextValue, value); }
         public string AnotherBrokenTextValue { get => _anotherBrokenTextValue; set => SetProperty(ref _anotherBrokenTextValue, value); }
@@ -31,6 +33,9 @@ namespace Playground.Core.ViewModels
             ShowSecondChildCommand = new MvxAsyncCommand(async () => await NavigationService.Navigate<SecondChildViewModel>());
 
             ShowRootCommand = new MvxAsyncCommand(async () => await NavigationService.Navigate<RootViewModel>());
+
+            NavigationCloseCommand = new MvxAsyncCommand(() => OnCompleted.SafeInvoke());
+
 
             PropertyChanged += ChildViewModel_PropertyChanged;
         }
@@ -84,6 +89,9 @@ namespace Playground.Core.ViewModels
         public IMvxAsyncCommand ShowSecondChildCommand { get; private set; }
 
         public IMvxAsyncCommand ShowRootCommand { get; private set; }
+        public IMvxAsyncCommand NavigationCloseCommand { get; private set; }
+
+        public Func<Task> OnCompleted { get; set; }
 
         public override void ViewAppeared()
         {

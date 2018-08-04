@@ -21,7 +21,11 @@
                     Command="{Binding ShowSecondChildCommand}"
                     Margin="5"
                     Padding="5" />
-            
+            <Button Content="Close using Navigation"
+                Command="{Binding NavigationCloseCommand}"
+                Margin="5"
+                Padding="5" />
+
         </StackPanel>
         <Frame x:Name="NestedFrame"  Grid.Row="1"/>
     </Grid>
