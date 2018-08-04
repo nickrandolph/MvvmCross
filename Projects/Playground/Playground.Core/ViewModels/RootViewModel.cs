@@ -5,6 +5,7 @@
 using System;
 using System.Threading.Tasks;
 using MvvmCross;
+using MvvmCross.Base;
 using MvvmCross.Commands;
 using MvvmCross.Logging;
 using MvvmCross.Navigation;
@@ -15,7 +16,7 @@ using Playground.Core.ViewModels.Bindings;
 
 namespace Playground.Core.ViewModels
 {
-    public class RootViewModel : MvxNavigationViewModel
+    public class RootViewModel : MvxNavigationViewModel, IMvxNavigation
     {
         private readonly IMvxViewModelLoader _mvxViewModelLoader;
 
@@ -44,6 +45,11 @@ namespace Playground.Core.ViewModels
                     Value = 1.23m
                 });
                 var testIfReturn = result;
+            });
+
+            ShowNavigationChildCommand = new MvxAsyncCommand(async () =>
+            {
+                await OnCompleted.SafeInvoke();
             });
 
             ShowModalCommand = new MvxAsyncCommand(Navigate);
@@ -85,6 +91,8 @@ namespace Playground.Core.ViewModels
         public MvxNotifyTask MyTask { get; set; }
 
         public IMvxAsyncCommand ShowChildCommand { get; }
+
+        public IMvxAsyncCommand ShowNavigationChildCommand { get; }
 
         public IMvxAsyncCommand ShowModalCommand { get; }
 
@@ -134,6 +142,8 @@ namespace Playground.Core.ViewModels
                 ShouldLogInpc(false);
             }
         }
+
+        public Func<Task> OnCompleted { get; set; }
 
         public override async Task Initialize()
         {

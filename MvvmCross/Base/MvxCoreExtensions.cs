@@ -5,6 +5,7 @@
 using System;
 using System.Globalization;
 using System.Reflection;
+using System.Threading.Tasks;
 using MvvmCross.IoC;
 
 namespace MvvmCross.Base
@@ -78,6 +79,29 @@ namespace MvvmCross.Base
                 // pokemon - mask the error
                 return value;
             }
+        }
+
+        public static Task AsSafeAwaitable(this Task taskToAwait)
+        {
+            if (taskToAwait == null)
+                return Task.CompletedTask;
+            return taskToAwait;
+        }
+
+        public static Task SafeInvoke(this Func<Task> function)
+        {
+            if (function == null)
+                return Task.CompletedTask;
+
+            return function();
+        }
+
+        public static Task SafeInvoke<TParam>(this Func<TParam, Task> function, TParam param)
+        {
+            if (function == null)
+                return Task.CompletedTask;
+
+            return function(param);
         }
     }
 }

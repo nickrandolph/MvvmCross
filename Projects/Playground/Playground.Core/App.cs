@@ -14,6 +14,7 @@ namespace Playground.Core
 {
     public class App : MvxApplication
     {
+        private int ClickCount { get; set; }
         /// <summary>
         /// Breaking change in v6: This method is called on a background thread. Use
         /// Startup for any UI bound actions
@@ -28,6 +29,8 @@ namespace Playground.Core
             Mvx.IoCProvider.RegisterSingleton<IMvxTextProvider>(new TextProviderBuilder().TextProvider);
 
             RegisterAppStart<RootViewModel>();
+
+            RegisterNavigation<RootViewModel, ChildViewModel>(vm=> ++ClickCount==2);
         }
 
         /// <summary>

@@ -23,6 +23,8 @@ namespace MvvmCross.Navigation
 {
     public class MvxNavigationService : IMvxNavigationService
     {
+        public IDictionary<Type, Action<IMvxViewModel, IMvxNavigationService>> NavigationDefinitions { get; } = new Dictionary<Type, Action<IMvxViewModel, IMvxNavigationService>>();
+
         protected readonly IMvxLog Log = Mvx.IoCProvider.Resolve<IMvxLogProvider>().GetLogFor<MvxNavigationService>();
 
         private IMvxViewDispatcher _viewDispatcher;
@@ -59,6 +61,22 @@ namespace MvvmCross.Navigation
         {
             NavigationCache = navigationCache;
             ViewModelLoader = viewModelLoader;
+        }
+
+        public void AddNavigation<TCurrentViewModel>(Action<IMvxViewModel, IMvxNavigationService> navAction)
+        {
+            NavigationDefinitions.TryGetValue(typeof(TCurrentViewModel), out var existingActions);
+            
+            if (existingActions != null)
+                existingActions= (obj, nav) =>
+                {
+                    existingActions(obj, nav);
+                    navAction(obj, nav);
+                };
+            else
+                existingActions = navAction;
+
+            NavigationDefinitions[typeof(TCurrentViewModel)] = existingActions;
         }
 
         public static void LoadRoutes(IEnumerable<Assembly> assemblies)
@@ -274,6 +292,15 @@ namespace MvvmCross.Navigation
 
             hasNavigated = await ViewDispatcher.ShowViewModel(request);
 
+            if (hasNavigated)
+            {
+                if (NavigationDefinitions.TryGetValue(viewModel.GetType(), out var navDef))
+                {
+                    navDef(viewModel, this);
+                }
+            }
+
+
             if (viewModel.InitializeTask?.Task != null)
                 await viewModel.InitializeTask.Task.ConfigureAwait(false);
 
@@ -304,8 +331,16 @@ namespace MvvmCross.Navigation
 
             hasNavigated = await ViewDispatcher.ShowViewModel(request);
 
+            if (hasNavigated)
+            {
+                if (NavigationDefinitions.TryGetValue(viewModel.GetType(), out var navDef))
+                {
+                    navDef(viewModel, this);
+                }
+            }
+
             // TODO: Should Initialize task be done on UI or non-UI thread? Now that ShowViewModel is async, we could ConfigureAwait it to return on non-UI thread
-            if(viewModel.InitializeTask?.Task != null)
+            if (viewModel.InitializeTask?.Task != null)
                 await viewModel.InitializeTask.Task.ConfigureAwait(false);
 
             OnAfterNavigate(this, args);
@@ -344,7 +379,15 @@ namespace MvvmCross.Navigation
 
             hasNavigated = await ViewDispatcher.ShowViewModel(request);
 
-            if(viewModel.InitializeTask?.Task != null)
+            if (hasNavigated)
+            {
+                if (NavigationDefinitions.TryGetValue(viewModel.GetType(), out var navDef))
+                {
+                    navDef(viewModel, this);
+                }
+            }
+
+            if (viewModel.InitializeTask?.Task != null)
                 await viewModel.InitializeTask.Task.ConfigureAwait(false);
 
             OnAfterNavigate(this, args);

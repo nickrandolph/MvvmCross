@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using MvvmCross.IoC;
 using MvvmCross.Logging;
+using MvvmCross.Navigation;
 using MvvmCross.Plugin;
 
 namespace MvvmCross.ViewModels
@@ -98,6 +99,29 @@ namespace MvvmCross.ViewModels
         protected IEnumerable<Type> CreatableTypes(Assembly assembly)
         {
             return assembly.CreatableTypes();
+        }
+
+
+        protected virtual void RegisterNavigation<TCurrentViewModel, TNewViewModel>(Func<TCurrentViewModel, bool> shouldNavigate = null)
+            where TCurrentViewModel : class, IMvxNavigation, IMvxViewModel
+            where TNewViewModel : IMvxViewModel
+        {
+            var navService = Mvx.IoCProvider.Resolve<IMvxNavigationService>() as MvxNavigationService;
+            var newDefinition = new Action<IMvxViewModel, IMvxNavigationService>((obj, nav) =>
+            {
+                var vm = obj as TCurrentViewModel;
+                if (vm != null)
+                {
+                    vm.OnCompleted = () =>
+                    {
+                        if (shouldNavigate?.Invoke(vm) ?? true)
+                            return nav.Navigate<TNewViewModel>();
+
+                        return Task.CompletedTask;
+                    };
+                }
+            });
+            navService.AddNavigation<TCurrentViewModel>(newDefinition);
         }
     }
 
