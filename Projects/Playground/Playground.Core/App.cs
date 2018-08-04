@@ -32,6 +32,8 @@ namespace Playground.Core
 
             RegisterNavigation<RootViewModel, ChildViewModel>(vm=> ++ClickCount==2);
             RegisterCompletion<ChildViewModel>();
+            RegisterNext<ChildViewModel, SecondChildViewModel, NextViewModel>(NextViewModel.Next);
+            RegisterNextCompletion<ChildViewModel, NextViewModel>(NextViewModel.Completed);
         }
 
         /// <summary>

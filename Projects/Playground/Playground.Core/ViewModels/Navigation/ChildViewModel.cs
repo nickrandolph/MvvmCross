@@ -13,7 +13,7 @@ using Playground.Core.Models;
 
 namespace Playground.Core.ViewModels
 {
-    public class ChildViewModel : MvxNavigationViewModel<SampleModel, SampleModel>, IMvxNavigation
+    public class ChildViewModel : MvxNavigationViewModel<SampleModel, SampleModel>, IMvxViewModelCompleted, IMvxNextViewModel<NextViewModel>
     {
         public string BrokenTextValue { get => _brokenTextValue; set => SetProperty(ref _brokenTextValue, value); }
         public string AnotherBrokenTextValue { get => _anotherBrokenTextValue; set => SetProperty(ref _anotherBrokenTextValue, value); }
@@ -35,6 +35,8 @@ namespace Playground.Core.ViewModels
             ShowRootCommand = new MvxAsyncCommand(async () => await NavigationService.Navigate<RootViewModel>());
 
             NavigationCloseCommand = new MvxAsyncCommand(() => OnCompleted.SafeInvoke());
+            NextSecondChildCommand = new MvxAsyncCommand(() => OnNext.SafeInvoke(NextViewModel.Next));
+            NextCloseCommand = new MvxAsyncCommand(() => OnNext.SafeInvoke(NextViewModel.Completed));
 
 
             PropertyChanged += ChildViewModel_PropertyChanged;
@@ -90,8 +92,11 @@ namespace Playground.Core.ViewModels
 
         public IMvxAsyncCommand ShowRootCommand { get; private set; }
         public IMvxAsyncCommand NavigationCloseCommand { get; private set; }
+        public IMvxAsyncCommand NextSecondChildCommand { get; private set; }
+        public IMvxAsyncCommand NextCloseCommand { get; private set; }
 
         public Func<Task> OnCompleted { get; set; }
+        public Func<NextViewModel, Task> OnNext { get; set; }
 
         public override void ViewAppeared()
         {

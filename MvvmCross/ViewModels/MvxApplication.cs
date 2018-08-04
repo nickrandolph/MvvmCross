@@ -103,7 +103,7 @@ namespace MvvmCross.ViewModels
 
 
         protected virtual void RegisterNavigation<TCurrentViewModel, TNewViewModel>(Func<TCurrentViewModel, bool> shouldNavigate = null)
-            where TCurrentViewModel : class, IMvxNavigation, IMvxViewModel
+            where TCurrentViewModel : class, IMvxViewModelCompleted, IMvxViewModel
             where TNewViewModel : IMvxViewModel
         {
             var navService = Mvx.IoCProvider.Resolve<IMvxNavigationService>() as MvxNavigationService;
@@ -125,7 +125,7 @@ namespace MvvmCross.ViewModels
         }
 
         protected virtual void RegisterCompletion<TCurrentViewModel>(Func<TCurrentViewModel, bool> shouldComplete = null)
-            where TCurrentViewModel : class, IMvxNavigation, IMvxViewModel
+            where TCurrentViewModel : class, IMvxViewModelCompleted, IMvxViewModel
         {
             var navService = Mvx.IoCProvider.Resolve<IMvxNavigationService>() as MvxNavigationService;
             var newDefinition = new Action<IMvxViewModel, IMvxNavigationService>((obj, nav) =>
@@ -136,6 +136,53 @@ namespace MvvmCross.ViewModels
                     vm.OnCompleted = () =>
                     {
                         if (shouldComplete?.Invoke(vm) ?? true)
+                            return nav.Close(vm);
+
+                        return Task.CompletedTask;
+                    };
+                }
+            });
+            navService.AddNavigation<TCurrentViewModel>(newDefinition);
+        }
+
+        protected virtual void RegisterNext<TCurrentViewModel, TNewViewModel, TNextViewModel>(TNextViewModel nextAction, Func<TCurrentViewModel, bool> shouldNavigate = null)
+           where TCurrentViewModel : class, IMvxNextViewModel<TNextViewModel>, IMvxViewModel
+           where TNewViewModel : IMvxViewModel
+            where TNextViewModel : struct
+        {
+            var navService = Mvx.IoCProvider.Resolve<IMvxNavigationService>() as MvxNavigationService;
+            var expectedNext = nextAction;
+            var newDefinition = new Action<IMvxViewModel, IMvxNavigationService>((obj, nav) =>
+            {
+                var vm = obj as TCurrentViewModel;
+                if (vm != null)
+                {
+                    vm.OnNext += (next) =>
+                    {
+                        if (expectedNext.Equals(next) && (shouldNavigate?.Invoke(vm) ?? true))
+                            return nav.Navigate<TNewViewModel>();
+
+                        return Task.CompletedTask;
+                    };
+                }
+            });
+            navService.AddNavigation<TCurrentViewModel>(newDefinition);
+        }
+
+        protected virtual void RegisterNextCompletion<TCurrentViewModel, TNextViewModel>(TNextViewModel nextAction, Func<TCurrentViewModel, bool> shouldComplete = null)
+            where TCurrentViewModel : class, IMvxNextViewModel<TNextViewModel>, IMvxViewModel
+            where TNextViewModel: struct
+        {
+            var navService = Mvx.IoCProvider.Resolve<IMvxNavigationService>() as MvxNavigationService;
+            var expectedNext = nextAction;
+            var newDefinition = new Action<IMvxViewModel, IMvxNavigationService>((obj, nav) =>
+            {
+                var vm = obj as TCurrentViewModel;
+                if (vm != null)
+                {
+                    vm.OnNext += (next) =>
+                    {
+                        if (expectedNext.Equals(next) && (shouldComplete?.Invoke(vm) ?? true))
                             return nav.Close(vm);
 
                         return Task.CompletedTask;

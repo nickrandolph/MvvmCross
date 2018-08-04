@@ -7,13 +7,29 @@ using System.Threading.Tasks;
 
 namespace MvvmCross.ViewModels
 {
-    public interface IMvxNavigation
+    public interface IMvxViewModelCompleted
     {
         Func<Task> OnCompleted { get; set; }
     }
 
-    public interface IMvxNavigation<TParameter>
+    public interface IMvxViewModelCompleted<TParameter>
     {
         Func<TParameter, Task> OnCompletedWithParameter { get; set; }
-    }   
+    }
+
+    public enum NextViewModel
+    {
+        Next,
+        Completed
+    }
+
+    public interface IMvxNextViewModel<TNext> where TNext:struct
+    {
+        Func<TNext, Task> OnNext { get; set; }
+    }
+
+    public interface IMvxNextViewModel<TNext, TParameter> where TNext : struct
+    {
+        Func<TNext, TParameter, Task> OnNextParameter { get; set; }
+    }
 }

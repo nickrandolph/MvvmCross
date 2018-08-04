@@ -16,7 +16,7 @@ using Playground.Core.ViewModels.Bindings;
 
 namespace Playground.Core.ViewModels
 {
-    public class RootViewModel : MvxNavigationViewModel, IMvxNavigation
+    public class RootViewModel : MvxNavigationViewModel, IMvxViewModelCompleted
     {
         private readonly IMvxViewModelLoader _mvxViewModelLoader;
 

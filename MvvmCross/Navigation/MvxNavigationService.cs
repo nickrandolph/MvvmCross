@@ -66,13 +66,16 @@ namespace MvvmCross.Navigation
         public void AddNavigation<TCurrentViewModel>(Action<IMvxViewModel, IMvxNavigationService> navAction)
         {
             NavigationDefinitions.TryGetValue(typeof(TCurrentViewModel), out var existingActions);
-            
+
             if (existingActions != null)
-                existingActions= (obj, nav) =>
-                {
-                    existingActions(obj, nav);
-                    navAction(obj, nav);
-                };
+            {
+                var lastAction = existingActions;
+                existingActions = (obj, nav) =>
+                 {
+                     lastAction(obj, nav);
+                     navAction(obj, nav);
+                 };
+            }
             else
                 existingActions = navAction;
 
