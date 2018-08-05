@@ -30,6 +30,15 @@ namespace Playground.Core
 
             RegisterAppStart<RootViewModel>();
 
+            // Note: The goal is to have the registration of navigation to be more fluent e.g:
+            // this.When<RootViewModel>().IsCompleted().NavigateTo<ChildViewModel>();
+            // this.When<RootViewModel>().IsCompleted().And(vm=> ++ClickCount==2).NavigateTo<ChildViewModel>();
+            // this.When<ChildViewModel>().IsCompleted().CloseViewModel();
+            // this.When<ChildViewModel>().Requests(NextViewModel.Next).NavigateTo<SecondChildViewModel>().WithParameter<ParameterType>();
+            // this.When<ChildViewModel>().Requests(NextViewModel.Completed).CloseViewModel();
+            // this.When<ChildViewModel>().RequestsInput().From<InputViewModel>();
+
+
             RegisterNavigation<RootViewModel, ChildViewModel>(vm=> ++ClickCount==2);
             RegisterCompletion<ChildViewModel>();
             RegisterNext<ChildViewModel, SecondChildViewModel, NextViewModel>(NextViewModel.Next);
