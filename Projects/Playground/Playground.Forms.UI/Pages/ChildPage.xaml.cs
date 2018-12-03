@@ -10,7 +10,7 @@ using System;
 
 namespace Playground.Forms.UI.Pages
 {
-    [MvxContentPagePresentation(WrapInNavigationPage = true, NoHistory = false)]
+    [MvxContentPagePresentation(WrapInNavigationPage = true, NoHistory = false, CloseAnyOpenModals = false)]
     public partial class ChildPage : MvxContentPage<ChildViewModel>
     {
         public ChildPage()
@@ -23,7 +23,7 @@ namespace Playground.Forms.UI.Pages
         private void BrokenTextLabel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             // This demonstrates how MvxFullBinding captures UI exception
-            if(e.PropertyName==nameof(BrokenTextLabel.Text))
+            if (e.PropertyName == nameof(BrokenTextLabel.Text))
                 throw new NotImplementedException();
         }
     }

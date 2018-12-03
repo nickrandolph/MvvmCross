@@ -98,7 +98,7 @@ namespace MvvmCross.Forms.Presenters
             set => base.AttributeTypesToActionsDictionary = value;
         }
 
-        public virtual Page CreatePage(Type viewType, MvxViewModelRequest request, MvxBasePresentationAttribute attribute)
+        public virtual Page CreatePage(Type viewType, MvxViewModelRequest request, IMvxPagePresentationAttribute attribute)
         {
             var page = Activator.CreateInstance(viewType) as Page;
 
@@ -110,25 +110,21 @@ namespace MvvmCross.Forms.Presenters
                     contentPage.ViewModel = ViewModelLoader.LoadViewModel(request, null);
             }
 
-            if (attribute is MvxPagePresentationAttribute pageAttribute)
-            {
-                if (string.IsNullOrEmpty(page.Title) && !string.IsNullOrEmpty(pageAttribute.Title))
-                    page.Title = pageAttribute.Title;
-                if (string.IsNullOrEmpty(page.Icon) && !string.IsNullOrEmpty(pageAttribute.Icon))
-                    page.Icon = pageAttribute.Icon;
-            }
+            if (string.IsNullOrEmpty(page.Title) && !string.IsNullOrEmpty(attribute.Title))
+                page.Title = attribute.Title;
+            if (string.IsNullOrEmpty(page.Icon) && !string.IsNullOrEmpty(attribute.Icon))
+                page.Icon = attribute.Icon;
 
             return page;
         }
 
         protected virtual async Task<Page> CloseAndCreatePage(Type view,
             MvxViewModelRequest request,
-            MvxPagePresentationAttribute attribute,
-            bool closeModal = true,
+            IMvxPagePresentationAttribute attribute,
             bool closePlatformViews = true,
             bool showPlatformViews = true)
         {
-            if (closeModal)
+            if (attribute.CloseAnyOpenModals)
                 await CloseAllModals();
 
             if (closePlatformViews)
@@ -499,7 +495,7 @@ namespace MvvmCross.Forms.Presenters
             MvxModalPresentationAttribute attribute,
             MvxViewModelRequest request)
         {
-            var page = await CloseAndCreatePage(view, request, attribute, closeModal: false);
+            var page = await CloseAndCreatePage(view, request, attribute);
 
             if (FormsApplication.MainPage == null)
                 FormsApplication.MainPage = CreateNavigationPage(CreateContentPage().Build(cp => cp.Title = nameof(ContentPage)));
@@ -618,7 +614,7 @@ namespace MvvmCross.Forms.Presenters
             }
         }
 
-        protected virtual async Task<bool> ClosePage(Page rootPage, Page page, MvxPagePresentationAttribute attribute)
+        protected virtual async Task<bool> ClosePage(Page rootPage, Page page, IMvxPagePresentationAttribute attribute)
         {
             var root = TopNavigationPage();
 
@@ -637,7 +633,7 @@ namespace MvvmCross.Forms.Presenters
             return true;
         }
 
-        public virtual async Task PushOrReplacePage(Page rootPage, Page page, MvxPagePresentationAttribute attribute)
+        public virtual async Task PushOrReplacePage(Page rootPage, Page page, IMvxPagePresentationAttribute attribute)
         {
             // Make sure we always have a rootPage
             if (rootPage == null)
@@ -876,7 +872,7 @@ namespace MvvmCross.Forms.Presenters
                 return rootPage as TPage;
         }
 
-        public virtual void ReplacePageRoot(Page existingPage, Page page, MvxPagePresentationAttribute attribute)
+        public virtual void ReplacePageRoot(Page existingPage, Page page, IMvxPagePresentationAttribute attribute)
         {
             try
             {

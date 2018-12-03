@@ -11,6 +11,7 @@ namespace MvvmCross.Forms.Presenters.Attributes
     {
         public MvxModalPresentationAttribute()
         {
+            CloseAnyOpenModals = false;
         }
     }
 }
