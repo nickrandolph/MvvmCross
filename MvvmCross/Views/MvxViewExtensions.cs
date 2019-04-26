@@ -11,14 +11,14 @@ namespace MvvmCross.Views
 {
     public static class MvxViewExtensions
     {
-        public static void OnViewCreate(this IMvxView view, Func<IMvxViewModel> viewModelLoader)
+        public static void OnViewCreate(this IMvxView view, Func<IMvxViewModel> viewModelLoader, bool ignoreCurrent = false)
         {
             // note - we check the DataContent before the ViewModel to avoid casting errors
             //       in the case of 'simple' binding code
-            if (view.DataContext != null)
+            if (view.DataContext != null && !ignoreCurrent)
                 return;
 
-            if (view.ViewModel != null)
+            if (view.ViewModel != null && !ignoreCurrent)
                 return;
 
             var viewModel = viewModelLoader();
@@ -63,7 +63,7 @@ namespace MvvmCross.Views
         {
             var propertyInfo = view?.GetType().GetProperty("ViewModel");
 
-            return (IMvxViewModel) propertyInfo?.GetGetMethod().Invoke(view, new object[] { });
+            return (IMvxViewModel)propertyInfo?.GetGetMethod().Invoke(view, new object[] { });
         }
 
         public static IMvxBundle CreateSaveStateBundle(this IMvxView view)

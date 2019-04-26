@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using MvvmCross.Exceptions;
-using MvvmCross.Forms.Core;
 using MvvmCross.Forms.Presenters.Attributes;
 using MvvmCross.Forms.Views;
 using MvvmCross.Logging;
@@ -37,6 +36,7 @@ namespace MvvmCross.Forms.Presenters
         protected IMvxFormsViewPresenter PlatformPresenter { get; }
 
         private Application _formsApplication;
+
         public Application FormsApplication
         {
             get
@@ -49,6 +49,7 @@ namespace MvvmCross.Forms.Presenters
         }
 
         private IMvxViewModelLoader _viewModelLoader;
+
         public IMvxViewModelLoader ViewModelLoader
         {
             get
@@ -167,6 +168,7 @@ namespace MvvmCross.Forms.Presenters
 
         public override void RegisterAttributeTypes()
         {
+            AttributeTypesToActionsDictionary.Register<MvxShellPresentationAttribute>(ShowShell, CloseShell);
             AttributeTypesToActionsDictionary.Register<MvxCarouselPagePresentationAttribute>(ShowCarouselPage, CloseCarouselPage);
             AttributeTypesToActionsDictionary.Register<MvxContentPagePresentationAttribute>(ShowContentPage, CloseContentPage);
             AttributeTypesToActionsDictionary.Register<MvxMasterDetailPagePresentationAttribute>(ShowMasterDetailPage, CloseMasterDetailPage);
@@ -200,7 +202,6 @@ namespace MvvmCross.Forms.Presenters
                 {
                     var matched = await PopModalToViewModel(navigation, popHint);
                     if (matched) return true;
-
 
                     await PopToViewModel(navigation, popHint.ViewModelToPopTo, popHint.Animated);
                     return true;
@@ -328,6 +329,30 @@ namespace MvvmCross.Forms.Presenters
 #endif
         }
 
+        public virtual async Task<bool> ShowShell(
+           Type view,
+           MvxShellPresentationAttribute attribute,
+           MvxViewModelRequest request)
+        {
+            var page = Activator.CreateInstance(view) as Shell;
+
+            if (page is IMvxPage contentPage)
+            {
+                if (request is MvxViewModelInstanceRequest instanceRequest)
+                    contentPage.ViewModel = instanceRequest.ViewModelInstance;
+                else
+                    contentPage.ViewModel = ViewModelLoader.LoadViewModel(request, null);
+            }
+
+            FormsApplication.MainPage = page;
+            return true;
+        }
+
+        public virtual Task<bool> CloseShell(IMvxViewModel viewModel, MvxShellPresentationAttribute attribute)
+        {
+            return Task.FromResult(false);
+        }
+
         public virtual async Task<bool> ShowCarouselPage(
             Type view,
             MvxCarouselPagePresentationAttribute attribute,
@@ -378,6 +403,12 @@ namespace MvvmCross.Forms.Presenters
 
         public override MvxBasePresentationAttribute CreatePresentationAttribute(Type viewModelType, Type viewType)
         {
+            if (viewType.GetTypeInfo().IsSubclassOf(typeof(Shell)))
+            {
+                MvxFormsLog.Instance.Trace($"PresentationAttribute not found for {viewModelType.Name}. " +
+                               $"Assuming Shell presentation");
+                return new MvxShellPresentationAttribute() { ViewType = viewType, ViewModelType = viewModelType };
+            }
             if (viewType.GetTypeInfo().IsSubclassOf(typeof(ContentPage)))
             {
                 MvxFormsLog.Instance.Trace($"PresentationAttribute not found for {viewModelType.Name}. " +
@@ -488,8 +519,10 @@ namespace MvvmCross.Forms.Presenters
             {
                 case MasterDetailPosition.Root:
                     return ClosePage(FormsApplication.MainPage, null, attribute);
+
                 case MasterDetailPosition.Master:
                     return ClosePage(masterDetailHost.Master, null, attribute);
+
                 case MasterDetailPosition.Detail:
                     return FindAndCloseViewFromViewModel(viewModel, masterDetailHost.Detail, attribute);
             }

@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MS-PL license.
 // See the LICENSE file in the project root for more information.
 
-using Android.Content;
-using MvvmCross.Binding;
-using MvvmCross.Binding.Bindings.Target.Construction;
-using MvvmCross.Localization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MvvmCross.Binding;
+using MvvmCross.Binding.Bindings.Target.Construction;
+using MvvmCross.Droid.Support.V7.AppCompat;
 using MvvmCross.Forms.Core;
 using MvvmCross.Forms.Platforms.Android.Bindings;
 using MvvmCross.Platforms.Android.Core;
@@ -61,6 +61,7 @@ namespace MvvmCross.Forms.Platforms.Android.Core
                 {
                     var activity = Mvx.IoCProvider.Resolve<IMvxAndroidCurrentTopActivity>()?.Activity ?? ApplicationContext;
                     var asmb = activity.GetType().Assembly;
+                    global::Xamarin.Forms.Forms.SetFlags("Shell_Experimental", "CollectionView_Experimental");
                     Xamarin.Forms.Forms.Init(activity, null, ExecutableAssembly ?? asmb);
                 }
                 if (_formsApplication == null)
@@ -129,6 +130,27 @@ namespace MvvmCross.Forms.Platforms.Android.Core
         protected override IMvxNameMapping CreateViewToViewModelNaming()
         {
             return new MvxPostfixAwareViewToViewModelNameMapping("View", "Activity", "Fragment", "Page");
+        }
+
+        protected override IDictionary<Type, Type> InitializeViewLookup()
+        {
+            var typeLookup = base.InitializeViewLookup();
+
+            foreach (var view in typeLookup)
+            {
+                Routing.RegisterRoute(view.Key.Name, view.Value);
+            }
+
+            return typeLookup;
+        }
+
+        protected override IMvxNavigationService InitializeNavigationService(IMvxViewModelLocatorCollection collection)
+        {
+            var loader = CreateViewModelLoader(collection);
+            Mvx.IoCProvider.RegisterSingleton<IMvxViewModelLoader>(loader);
+            var navigationService = new MvxFormsNavigationService(null, loader);
+            Mvx.IoCProvider.RegisterSingleton<IMvxNavigationService>(navigationService);
+            return navigationService;
         }
     }
 

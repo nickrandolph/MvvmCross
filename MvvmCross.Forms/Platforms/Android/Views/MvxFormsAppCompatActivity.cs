@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Reflection;
-using System.Threading.Tasks;
 using Android.Content;
 using Android.OS;
 using Android.Util;
@@ -131,10 +130,10 @@ namespace MvvmCross.Forms.Platforms.Android.Views
                 global::Xamarin.Forms.Forms.Init(this, bundle, GetResourceAssembly());
             }
 
-            if (Xamarin.Forms.Application.Current != FormsApplication)
-            {
-                Xamarin.Forms.Application.Current = FormsApplication;
-            }
+            //if (Xamarin.Forms.Application.Current != FormsApplication)
+            //{
+            //    Xamarin.Forms.Application.Current = FormsApplication;
+            //}
         }
 
         public virtual void InitializeApplication()

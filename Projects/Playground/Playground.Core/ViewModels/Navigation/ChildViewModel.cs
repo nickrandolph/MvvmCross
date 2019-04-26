@@ -14,7 +14,10 @@ namespace Playground.Core.ViewModels
     public class ChildViewModel : MvxNavigationViewModel<SampleModel, SampleModel>
     {
         public string BrokenTextValue { get => _brokenTextValue; set => SetProperty(ref _brokenTextValue, value); }
+
         public string AnotherBrokenTextValue { get => _anotherBrokenTextValue; set => SetProperty(ref _anotherBrokenTextValue, value); }
+
+        public string ChildText => "Text to validate that page is data bound....";
 
         private SampleModel _parameter;
         private string _brokenTextValue;
@@ -37,7 +40,7 @@ namespace Playground.Core.ViewModels
 
         private void ChildViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            // Demonstrates that exceptions can be raised on property changed but are swallowed by default to 
+            // Demonstrates that exceptions can be raised on property changed but are swallowed by default to
             // protect the app from crashing
             if (e.PropertyName == nameof(BrokenTextValue))
                 throw new System.NotImplementedException();

@@ -464,7 +464,6 @@ namespace MvvmCross.Core
         {
             var assemblies = new List<Assembly>();
             assemblies.AddRange(GetViewAssemblies());
-
             //ideally we would also add ViewModelAssemblies here too :/
             //assemblies.AddRange(GetViewModelAssemblies());
             return assemblies.Distinct().ToArray();
@@ -549,7 +548,6 @@ namespace MvvmCross.Core
         public event EventHandler<MvxSetupStateEventArgs> StateChanged;
 
         private MvxSetupState _state;
-
         public MvxSetupState State
         {
             get

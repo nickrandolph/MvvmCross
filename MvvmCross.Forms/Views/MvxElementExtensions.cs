@@ -31,13 +31,16 @@ namespace MvvmCross.Forms.Views
         private static void LoadViewModelForElement(IMvxElement element)
         {
             IMvxViewModel cached = null;
+
+            var viewModelType = element.FindAssociatedViewModelTypeOrNull();
+
             if (!MvxDesignTimeChecker.IsDesignTime)
             {
                 var cache = Mvx.IoCProvider.Resolve<IMvxChildViewModelCache>();
-                cached = cache.Get(element.FindAssociatedViewModelTypeOrNull());
+                cached = cache.Get(viewModelType);
             }
 
-            element.OnViewCreate(() => cached ?? element.LoadViewModel());
+            element.OnViewCreate(() => cached ?? element.LoadViewModel(), element.DataContext?.GetType() != viewModelType);
         }
 
         public static void OnBindingContextChanged(this IMvxElement element)
