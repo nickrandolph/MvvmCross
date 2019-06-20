@@ -25,4 +25,8 @@ This package contains the 'MvvmCross.Forms.Platforms.Wpf' libraries for MvvmCros
   </ItemGroup>
 
   <Import Project="..\XamarinFormsWpf.targets" />
+
+  <ItemGroup>
+    <PackageReference Update="Xamarin.Forms" Version="4.0.1.383393-nightly" />
+  </ItemGroup>
 </Project>

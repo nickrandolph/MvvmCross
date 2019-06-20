@@ -112,6 +112,6 @@
     <Reference Include="netstandard" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Update="Xamarin.Forms" Version="4.0.1.369313" />
+    <PackageReference Update="Xamarin.Forms" Version="4.0.1.383393-nightly" />
   </ItemGroup>
 </Project>
