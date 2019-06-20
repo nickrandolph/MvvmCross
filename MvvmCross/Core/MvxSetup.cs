@@ -116,8 +116,10 @@ namespace MvvmCross.Core
             InitializeViewModelTypeFinder();
             SetupLog.Trace("Setup: ViewsContainer start");
             InitializeViewsContainer();
-            SetupLog.Trace("Setup: Views start");
-            InitializeViewLookup();
+            SetupLog.Trace("Setup: View Lookups start");
+            var maps = InitializeViewLookup();
+            SetupLog.Trace("Setup: Views Container start");
+            InitializeViewsContainer(maps);
             SetupLog.Trace("Setup: CommandCollectionBuilder start");
             InitializeCommandCollectionBuilder();
             SetupLog.Trace("Setup: NavigationSerializer start");
@@ -464,6 +466,7 @@ namespace MvvmCross.Core
         {
             var assemblies = new List<Assembly>();
             assemblies.AddRange(GetViewAssemblies());
+
             //ideally we would also add ViewModelAssemblies here too :/
             //assemblies.AddRange(GetViewModelAssemblies());
             return assemblies.Distinct().ToArray();
@@ -497,14 +500,18 @@ namespace MvvmCross.Core
             return nameMappingStrategy;
         }
 
-        protected virtual IMvxViewsContainer InitializeViewLookup()
+        protected virtual IDictionary<Type, Type> InitializeViewLookup()
         {
             var viewAssemblies = GetViewAssemblies();
             var builder = Mvx.IoCProvider.Resolve<IMvxTypeToTypeLookupBuilder>();
             var viewModelViewLookup = builder.Build(viewAssemblies);
+            return viewModelViewLookup;
+        }
+
+        protected virtual IMvxViewsContainer InitializeViewsContainer(IDictionary<Type, Type> viewModelViewLookup)
+        {
             if (viewModelViewLookup == null)
                 return null;
-
             var container = Mvx.IoCProvider.Resolve<IMvxViewsContainer>();
             container.AddAll(viewModelViewLookup);
             return container;
@@ -548,6 +555,7 @@ namespace MvvmCross.Core
         public event EventHandler<MvxSetupStateEventArgs> StateChanged;
 
         private MvxSetupState _state;
+
         public MvxSetupState State
         {
             get
