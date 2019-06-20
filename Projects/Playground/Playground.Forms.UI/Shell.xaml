@@ -9,12 +9,11 @@
        Title="MvvmCross Shell"
        x:Name="self"
        x:Class="Playground.Forms.UI.Shell">
+  <FlyoutItem Title="Home">
+    <ShellContent Route="home" ContentTemplate="{DataTemplate local:RootPage}" />
+  </FlyoutItem>
 
-    <FlyoutItem Title="Home">
-        <ShellContent Route="home" ContentTemplate="{DataTemplate local:RootPage}" />
-    </FlyoutItem>
-
-    <FlyoutItem Title="Child">
-        <ShellContent Route="child" ContentTemplate="{DataTemplate local:ChildPage}" />
-    </FlyoutItem>
+  <FlyoutItem Title="Child">
+    <ShellContent Route="child" ContentTemplate="{DataTemplate local:ChildPage}" />
+  </FlyoutItem>
 </views:MvxShell>

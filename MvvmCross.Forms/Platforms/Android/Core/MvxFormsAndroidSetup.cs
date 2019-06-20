@@ -11,17 +11,17 @@ using MvvmCross.Binding.Bindings.Target.Construction;
 using MvvmCross.Droid.Support.V7.AppCompat;
 using MvvmCross.Forms.Core;
 using MvvmCross.Forms.Platforms.Android.Bindings;
-using MvvmCross.Platforms.Android.Core;
+using MvvmCross.Forms.Platforms.Android.Presenters;
+using MvvmCross.Forms.Presenters;
+using MvvmCross.IoC;
+using MvvmCross.Localization;
+using MvvmCross.Navigation;
+using MvvmCross.Platforms.Android;
 using MvvmCross.Platforms.Android.Presenters;
 using MvvmCross.Plugin;
 using MvvmCross.ViewModels;
-using MvvmCross.Platforms.Android;
-using MvvmCross.Forms.Presenters;
-using MvvmCross.Forms.Platforms.Android.Presenters;
+using MvvmCross.Views;
 using Xamarin.Forms;
-using MvvmCross.Droid.Support.V7.AppCompat;
-using MvvmCross.Core;
-using MvvmCross.IoC;
 
 namespace MvvmCross.Forms.Platforms.Android.Core
 {
@@ -132,25 +132,20 @@ namespace MvvmCross.Forms.Platforms.Android.Core
             return new MvxPostfixAwareViewToViewModelNameMapping("View", "Activity", "Fragment", "Page");
         }
 
-        protected override IDictionary<Type, Type> InitializeViewLookup()
+        protected override IMvxViewsContainer InitializeViewsContainer(IDictionary<Type, Type> viewModelViewLookup)
         {
-            var typeLookup = base.InitializeViewLookup();
-
-            foreach (var view in typeLookup)
+            foreach (var view in viewModelViewLookup)
             {
                 Routing.RegisterRoute(view.Key.Name, view.Value);
             }
-
-            return typeLookup;
+            return base.InitializeViewsContainer(viewModelViewLookup);
         }
 
-        protected override IMvxNavigationService InitializeNavigationService(IMvxViewModelLocatorCollection collection)
+        protected override void RegisterDefaultSetupDependencies(IMvxIoCProvider iocProvider)
         {
-            var loader = CreateViewModelLoader(collection);
-            Mvx.IoCProvider.RegisterSingleton<IMvxViewModelLoader>(loader);
-            var navigationService = new MvxFormsNavigationService(null, loader);
-            Mvx.IoCProvider.RegisterSingleton<IMvxNavigationService>(navigationService);
-            return navigationService;
+            base.RegisterDefaultSetupDependencies(iocProvider);
+            iocProvider.LazyConstructAndRegisterSingleton<IMvxNavigationService, IMvxViewModelLoader>(loader =>
+                new MvxFormsNavigationService(null, loader));
         }
     }
 
